@@ -4,7 +4,7 @@ import './App.css'
 
 interface State {
     inputValue: string,
-    todoArray: string[],
+    todoArray: any[],
     isChecked: boolean
 }
 
@@ -31,13 +31,13 @@ class TodoList extends Component<{}, State>{
         if (this.state.inputValue) {
             let prevTodoList = [...this.state.todoArray];
             let inputVal = this.state.inputValue;
-            prevTodoList.push(inputVal)
+            prevTodoList.push({name:inputVal,completed:false})
             this.setState({ todoArray: prevTodoList, inputValue: "" })
 
         }
     }
 
-    removeTodoItem = (todoItem: string) => {
+    removeTodoItem = (todoItem: object) => {
         console.log("deleted----", todoItem);
         let filteredTodoList = this.state.todoArray.filter((item) => {
             return item !== todoItem
@@ -45,19 +45,21 @@ class TodoList extends Component<{}, State>{
         this.setState({ todoArray: filteredTodoList })
     }
 
-    toggleChange = (event: React.ChangeEvent<HTMLInputElement>,selectedItem:string) => {
-        console.log("----", event.target.checked, selectedItem);
-        let checkArr=[];
-        if(event.target.checked) {
-          checkArr.push(selectedItem);
-        }
-        console.log("Array------",checkArr)
-        // let checkedObj = [];
-        // checkedObj.push( {`${selectedItem}_isChecked`} ) = event.target.value;
-        // this.setState({ {`${selectedItem}_isChecked`} : event.target.checked });
-
-        // ss-ischecked: event.target.value;
-
+    toggleChange = (event: React.ChangeEvent<HTMLInputElement>,selectedItem:any,indexItem:number) => {
+        console.log("----", event.target.checked, selectedItem,indexItem);
+        const {todoArray} = this.state;
+        let emptyArr:any= [];
+        todoArray.forEach((item,index)=>{
+            console.log("item toggleChange",item);
+            if(index!==indexItem){
+                emptyArr.push(item)
+            }
+            else {
+                item.completed = event.target.checked;
+                emptyArr.push(item);
+            }
+        })
+        this.setState({todoArray:emptyArr})
     }
 
     render() {
@@ -82,10 +84,10 @@ class TodoList extends Component<{}, State>{
                             <>
                                 <div>
                                     <label className="TodoList" htmlFor="checkValue">
-                                        <input type="checkbox" className="checkboxTodoStyle" checked={this.state.isChecked} onChange={(event) => this.toggleChange(event,item)} id="checkValue" />
+                                        <input type="checkbox" className="checkboxTodoStyle" checked={item.completed} onChange={(event) => this.toggleChange(event,item,index)} id="checkValue" />
                                         <ul key={index} className="ulTodo">
-                                            <li key={index} className={this.state.isChecked ? "StrikeTodoItem" : ""}>
-                                                {item}
+                                            <li key={index} className={item.completed ? "StrikeTodoItem" : ""}>
+                                                {item.name}
                                             </li>
                                             <span className="cancelTodoItem" onClick={() => { this.removeTodoItem(item) }}>X</span>
                                         </ul>
